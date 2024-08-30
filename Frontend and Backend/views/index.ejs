@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gas Guard Result</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Chart canvas styles */
+    body {
+      background-color: #e0f2f1; /* Light blue shade */
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff; /* Dark blue color */
+      margin-top: 20px;
+      font-family: Arial, sans-serif; /* Set font family */
+      font-size: 24px; /* Set font size */
+      text-transform: uppercase; /* Convert text to uppercase */
+      letter-spacing: 1px; /* Add letter spacing */
+    }
+    
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      max-width: 500px; /* Set maximum width for each graph */
+    }
+
+    /* Chart title styles */
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 20px;
+    }
+
+    /* Button styles */
+    .button {
+      display: block;
+      width: 200px;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #007bff; /* Dark blue button color */
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .button:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    /* Container styles */
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .chart-container > div {
+      flex: 1;
+      margin: 10px;
+      max-width: 400px; /* Set maximum width for each chart container */
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Environment Gas Concentration</h1>
+  <div class="chart-container">
+    <canvas id="lpgChart" width="400" height="200"></canvas>
+    
+  </div>
+  <div>
+    <canvas id="co2Chart" width="400" height="200"></canvas>
+  </div>
+  <div>
+    <canvas id="alcoholChart" width="400" height="200"></canvas>
+  </div>
+  <div class="chart-container">
+    
+    <canvas id="smokeChart" width="400" height="200"></canvas>
+  </div>
+  
+  <!-- Add your buttons or links here if needed -->
+
+  <script>
+    // Function to add a new data point to the chart
+    function addData(chart, label, data) {
+      chart.data.labels.push(label);
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+      });
+      chart.update();
+    }
+
+    // Function to remove the oldest data point from the chart
+    function removeData(chart) {
+      chart.data.labels.shift();
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.shift();
+      });
+      chart.update();
+    }
+
+    // Initialize charts
+    var lpgCtx = document.getElementById('lpgChart').getContext('2d');
+    var lpgChart = new Chart(lpgCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'LPG (ppm)',
+          data: [],
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    var co2Ctx = document.getElementById('co2Chart').getContext('2d');
+    var co2Chart = new Chart(co2Ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'CO2 (ppm)',
+          data: [],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    var alcoholCtx = document.getElementById('alcoholChart').getContext('2d');
+    var alcoholChart = new Chart(alcoholCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Alcohol (ppm)',
+          data: [],
+          borderColor: 'rgba(255, 206, 86, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    var smokeCtx = document.getElementById('smokeChart').getContext('2d');
+    var smokeChart = new Chart(smokeCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Smoke (ppm)',
+          data: [],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Function to update chart data
+    function updateChartData(data) {
+      var label = new Date(data.created_at).toLocaleTimeString();
+      addData(lpgChart, label, data.field1);
+      addData(co2Chart, label, data.field2);
+      addData(alcoholChart, label, data.field3);
+      addData(smokeChart, label, data.field4);
+
+      if (lpgChart.data.labels.length > 5) {
+        removeData(lpgChart);
+        removeData(co2Chart);
+        removeData(alcoholChart);
+        removeData(smokeChart);
+      }
+    }
+
+    // Simulate incoming data every second (replace with actual data)
+    setInterval(() => {
+      var data = {
+        field1: Math.random() * 10,
+        field2: Math.random() * 10,
+        field3: Math.random() * 10,
+        field4: Math.random() * 10,
+        created_at: new Date().toISOString() // Replace this with the actual timestamp from your JSON data
+      };
+      updateChartData(data);
+    }, 10000);
+  </script>
+</body>
+</html>
